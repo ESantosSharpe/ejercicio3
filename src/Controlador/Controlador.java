@@ -59,8 +59,7 @@ public class Controlador implements ActionListener, MouseListener{
         } catch (SQLException ex) {
             Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
         }
-        vista.tablaModelo.fireTableDataChanged();
-                        vista.iniTabla();
+        vista.iniTabla();
         break;
              case "modificar":
                 int modificar1=vista.idalumnos;
@@ -92,7 +91,6 @@ public class Controlador implements ActionListener, MouseListener{
                 } catch (SQLException ex) {
                     Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                vista.tablaModelo.fireTableDataChanged();
                 vista.iniTabla();
         }
     }

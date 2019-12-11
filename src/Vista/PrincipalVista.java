@@ -19,7 +19,6 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import Controlador.*;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.ListSelectionModel;
 
@@ -68,6 +67,7 @@ public class PrincipalVista extends JFrame implements ActionListener{
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        tablaModelo=null;
         tablaModelo=new ResultSetModeloTabla(rs);
         tabla=new JTable(tablaModelo);
         tabla.getColumnModel().getColumn(0).setPreferredWidth(10);
