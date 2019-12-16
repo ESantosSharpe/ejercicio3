@@ -51,6 +51,10 @@ public class ResultSetModeloTabla extends AbstractTableModel{
         }
     }
     @Override
+   public void setValueAt(Object value, int row, int col) {
+       
+    }
+    @Override
     public String getColumnName(int c){
         String nombres[]={"ID", "Nombre", "Apellido", "Tipo", "Documento", "Email", "Celular", "Nacionalidad"};
         return nombres[c];

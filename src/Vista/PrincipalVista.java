@@ -5,11 +5,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import Modelo.*;
 import java.awt.Container;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -19,31 +15,27 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import Controlador.*;
-import java.awt.event.MouseListener;
 import javax.swing.ListSelectionModel;
 
-public class PrincipalVista extends JFrame implements ActionListener{
+public class PrincipalVista extends JFrame{
     
-    Controlador controlador;
     private Modelo modelo;
     Container contenedor;
-    public ResultSetModeloTabla tablaModelo;
-    Connection con;
     ResultSet rs;
     Statement sentencia;
-    JButton agregar, modificar, eliminar;
+    public JButton agregar, modificar, eliminar;
+    ResultSetModeloTabla tablaModelo;
     public int idalumnos;
     public JTextField txtNombre, txtApellido,  txtDni, txtEmail, txtCelular;
     public JComboBox txtIdtipodocumento,txtNacionalidad;
-    public JTable tabla;
-    DatabaseMetaData DatosBBDD;
+    public JTable tabla=new JTable();
+    public JScrollPane scroll;
+    public JPanel botones;
     
     public PrincipalVista(){
         contenedor=new Container();
         contenedor=getContentPane();
         contenedor.setLayout (null);
-        Modelo modelo=new Modelo();    
-        con=modelo.getCon();
         confVentana();
         iniTabla();
         iniBotones();    
@@ -54,42 +46,43 @@ public class PrincipalVista extends JFrame implements ActionListener{
         this.setBounds(500,100,1000,400);
         this.setDefaultCloseOperation(3);
         this.setTitle("Ver alumnos");
-       
     }
     
     public void iniTabla(){
+        modelo=new Modelo();
         String consulta="select alumnos.idalumnos, alumnos.nombre, alumnos.apellido, tipodocumentos.tipodocumento, alumnos.dni, alumnos.email, alumnos.celular, paises.nombre as 'Nacionalidad' from alumnos \n" +
 " inner join paises on alumnos.idtiponacionalidad=paises.idpais \n" +
 " inner join tipodocumentos on alumnos.idtipodocumento=tipodocumentos.idtipodocumento";
         try {
-            sentencia=con.createStatement();        
+            sentencia=modelo.conectarse().createStatement();        
             rs=sentencia.executeQuery(consulta);
+            tablaModelo=null;
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        tablaModelo=null;
         tablaModelo=new ResultSetModeloTabla(rs);
+        tabla.setModel(tablaModelo);
         tabla=new JTable(tablaModelo);
         tabla.getColumnModel().getColumn(0).setPreferredWidth(10);
         tabla.getColumnModel().getColumn(3).setPreferredWidth(20);
-        JScrollPane scroll=new JScrollPane(tabla);
+        scroll=new JScrollPane(tabla);
         scroll.setBounds(0, 0, 600, 500);
         this.add(scroll);
         validate();
-        
     }
     
     public void iniBotones(){
-        JPanel botones=new JPanel();
+        botones=new JPanel();
         botones.setBounds(600, 0, 400, 400);
         botones.setLayout(null);
-        this.add(botones);
+
         
         
         //JComboBoxes
         String consulta="select tipodocumento from tipodocumentos";
         try {
-            sentencia=con.createStatement();
+            sentencia=modelo.conectarse().createStatement();
+            rs.beforeFirst();
             rs=sentencia.executeQuery(consulta);
         } catch (SQLException ex) {
             Logger.getLogger(PrincipalVista.class.getName()).log(Level.SEVERE, null, ex);
@@ -107,7 +100,8 @@ public class PrincipalVista extends JFrame implements ActionListener{
         
         String consulta1="select nombre from paises";
         try {
-            sentencia=con.createStatement();
+            sentencia=modelo.conectarse().createStatement();  
+            rs.beforeFirst();
             rs=sentencia.executeQuery(consulta1);
         } catch (SQLException ex) {
             Logger.getLogger(PrincipalVista.class.getName()).log(Level.SEVERE, null, ex);
@@ -158,8 +152,34 @@ public class PrincipalVista extends JFrame implements ActionListener{
         eliminar=new JButton("Eliminar");
         eliminar.setBounds(250, 250, 100, 30);
         botones.add(eliminar);
+        this.add(botones);
     } 
-    
+        public void actualizarTabla(){
+
+        modelo=new Modelo();
+        String consulta="select alumnos.idalumnos, alumnos.nombre, alumnos.apellido, tipodocumentos.tipodocumento, alumnos.dni, alumnos.email, alumnos.celular, paises.nombre as 'Nacionalidad' from alumnos \n" +
+" inner join paises on alumnos.idtiponacionalidad=paises.idpais \n" +
+" inner join tipodocumentos on alumnos.idtipodocumento=tipodocumentos.idtipodocumento";
+        try {
+            sentencia=modelo.conectarse().createStatement();        
+            rs=sentencia.executeQuery(consulta);
+            tablaModelo=null;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        tablaModelo=new ResultSetModeloTabla(rs);
+        tabla=null;
+        tabla=new JTable(tablaModelo);
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(10);
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(20);
+        scroll=new JScrollPane(tabla);
+        scroll.setBounds(0, 0, 600, 500);
+        this.add(scroll);
+        iniBotones();
+        revalidate();
+        repaint();
+        }
+        
     public void conectaControlador(Controlador c){
         tabla.addMouseListener(c);
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -167,16 +187,7 @@ public class PrincipalVista extends JFrame implements ActionListener{
         agregar.setActionCommand("agregar");
         modificar.addActionListener(c);
         modificar.setActionCommand("modificar");
+        eliminar.addActionListener(c);
+        eliminar.setActionCommand("eliminar");
     }
-public void actualizarTabla(){
-    tablaModelo.fireTableDataChanged();
-}
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-            
-
-   
-    
 }
